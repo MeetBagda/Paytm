@@ -10,7 +10,7 @@ const router = express.Router();
 const signUpSchema = z.object({
   username: z.string().email(),
   password: z.string(),
-  firtname: z.string(),
+  firstname: z.string(),
   lastname: z.string(),
 });
 router.post("/sign-up", async (req, res) => {

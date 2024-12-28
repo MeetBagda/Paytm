@@ -1,11 +1,15 @@
-import React from 'react'
+import "./App.css";
+import { AppSidebar } from "./components/app-sidebar";
+import LandingPage from "./components/LandingPage";
+import Layout from "./components/layout";
+import { SidebarProvider, SidebarTrigger } from "./components/ui/sidebar";
 
-const App = () => {
+function App() {
   return (
-    <h1 className="text-3xl text-red-500 font-bold underline">
-      Hello world!
-    </h1>
-  )
+    <Layout>
+      <></>
+    </Layout>
+  );
 }
 
-export default App
+export default App;

@@ -8,6 +8,21 @@ const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../config");
 const  { authMiddleware } = require("../middleware");
 
+router.get("/me", authMiddleware, async (req, res) => {
+    const user = await User.findById(req.userId); 
+
+  if (!user) {
+      return res.status(404).json({
+        message: "User not found"
+      })
+  }
+  
+    res.json({
+        id: user._id,
+        username: user.username
+    });
+});
+
 const signupBody = zod.object({
   username: zod.string().min(3).max(30),
 	password: zod.string().min(6),

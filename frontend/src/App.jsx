@@ -18,7 +18,7 @@ function App() {
         <Routes>
         <Route path="/signin" element={<AuthRoute><Signin /></AuthRoute>} />
             <Route path="/signup" element={<AuthRoute><Signup /></AuthRoute>} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="*" element={<p>Route not found</p>} />
           <Route path="/send" element={<SendMoney />} />
         </Routes>
@@ -51,6 +51,34 @@ const AuthRoute = ({children}) => {
         checkAuth();
     }, [navigate]);
     return children;
+};
+
+const ProtectedRoute = ({ children }) => {
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+
+
+    useEffect(() => {
+        const checkAuth = async () => {
+        try {
+          if(!token) {
+           navigate("/signin")
+          }
+            await axios.get("http://localhost:3000/api/v1/user/me", {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                }
+            });
+
+        } catch(e) {
+            navigate("/signin")
+        }
+
+        }
+        checkAuth();
+
+    }, [navigate, token]);
+  return children;
 };
 
 export default App

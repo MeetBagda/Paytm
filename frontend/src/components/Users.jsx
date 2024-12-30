@@ -1,14 +1,18 @@
+
 import { useEffect, useState } from "react";
-import { Button } from "./Button";
+import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { SendIcon } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export const Users = () => {
     const [users, setUsers] = useState([]);
     const [filter, setFilter] = useState("");
     const [loggedInUserId, setLoggedInUserId] = useState(null);
 
-    useEffect(() => {
+     useEffect(() => {
       const fetchLoggedInUserId = async () => {
         try {
             const token = localStorage.getItem("token");
@@ -48,57 +52,54 @@ export const Users = () => {
       }
     }, [filter, loggedInUserId]);
 
-
     return (
         <>
-            <div className="font-bold mt-6 text-lg">
-                Users
-            </div>
-            <div className="my-2">
+         <div className="relative mb-6">
                 <input
-                    onChange={(e) => {
+                  placeholder="Search users..."
+                  className="pl-9  w-full px-2 py-1 border rounded border-slate-200"
+                     onChange={(e) => {
                         setFilter(e.target.value);
-                    }}
-                    type="text"
-                    placeholder="Search users..."
-                    className="w-full px-2 py-1 border rounded border-slate-200"
+                     }}
                 />
-            </div>
-            <div>
-                {users.map((user) => (
-                    <User key={user._id} user={user} />
-                ))}
+             </div>
+             <div className="h-[400px] pr-4">
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                   {users?.map((user) => (
+                       <User key={user._id} user={user} loggedInUserId={loggedInUserId}/>
+                    ))}
+                </div>
             </div>
         </>
     );
 };
 
-function User({ user }) {
+function User({ user, loggedInUserId }) {
     const navigate = useNavigate();
 
     return (
-        <div className="flex justify-between">
-            <div className="flex">
-                <div className="rounded-full h-12 w-12 bg-slate-200 flex justify-center mt-1 mr-2">
-                    <div className="flex flex-col justify-center h-full text-xl">
-                        {user.firstName[0]}
-                    </div>
-                </div>
-                <div className="flex flex-col justify-center h-ful">
-                    <div>
-                        {user.firstName} {user.lastName}
-                    </div>
-                </div>
+        <div
+          className="flex items-center justify-between rounded-lg border p-3 hover:bg-gray-50"
+        >
+          <div className="flex items-center gap-3">
+            <Avatar>
+              <AvatarFallback className="bg-primary/10 text-primary">
+                {user.firstName[0]?.toUpperCase() || 'U'}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <div className="font-medium capitalize">{user.firstName} {user.lastName}</div>
+              {/* <div className="text-sm text-muted-foreground">
+                Last transaction: 2 days ago
+              </div> */}
             </div>
-
-            <div className="flex flex-col justify-center h-ful">
-                <Button
-                    onClick={() => {
-                        navigate(`/send?id=${user._id}&name=${user.firstName}`);
-                    }}
-                    label={"Send Money"}
-                />
-            </div>
+          </div>
+           <Button size="sm" asChild>
+            <Link to={`/send?id=${user._id}&name=${user.firstName}`}>
+              <SendIcon className="mr-2 h-4 w-4" />
+              Send
+            </Link>
+           </Button>
         </div>
     );
 }

@@ -1,82 +1,142 @@
-import { useSearchParams } from 'react-router-dom';
+import { useState } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useState } from 'react';
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ArrowLeftIcon, SendIcon } from "lucide-react";
 
 export const SendMoney = () => {
-    const [searchParams] = useSearchParams();
-    const id = searchParams.get("id");
-    const name = searchParams.get("name");
-    const [amount, setAmount] = useState(0);
-    const [loading, setLoading] = useState(false); // State for loading
-    const [error, setError] = useState(null);    // State for error messages
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const id = searchParams.get("id");
+  const name = searchParams.get("name");
+  const [amount, setAmount] = useState(null);
+  const [note, setNote] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-    const handleTransfer = async () => {
-        setLoading(true); // Enable loader
-        setError(null);  // Clear previous errors
-        try {
-            await axios.post("http://localhost:3000/api/v1/account/transfer", {
-                to: id,
-                amount: Number(amount) // Ensure amount is a number
-            }, {
-                headers: {
-                    Authorization: "Bearer " + localStorage.getItem("token")
-                }
-            });
-          
-            // If transfer is successful, you might want to add a success message or redirect
-            alert("Transfer successful!")
-        } catch (error) {
-            console.error("Transfer failed:", error);
-            setError(error.message || "Transfer failed. Please try again.");
-        } finally {
-            setLoading(false); // Disable loader
+  const handleTransfer = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      await axios.post(
+        "http://localhost:3000/api/v1/account/transfer",
+        {
+          to: id,
+          amount: Number(amount),
+          note: note,
+        },
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
         }
-    };
+      );
+      alert("Transfer successful!");
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Transfer failed:", error);
+      setError(error.message || "Transfer failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return (
-      <div className="flex justify-center h-screen bg-gray-100">
-          <div className="h-full flex flex-col justify-center">
-            <div
-                className="border h-min text-card-foreground max-w-md p-4 space-y-8 w-96 bg-white shadow-lg rounded-lg"
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="rounded-full h-8 w-8 flex items-center justify-center hover:bg-gray-100"
+              type="button"
             >
-                <div className="flex flex-col space-y-1.5 p-6">
-                    <h2 className="text-3xl font-bold text-center">Send Money</h2>
-                </div>
-                <div className="p-6">
-                    <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center">
-                            <span className="text-2xl text-white">{name[0]?.toUpperCase()}</span>
-                        </div>
-                        <h3 className="text-2xl font-semibold">{name}</h3>
-                    </div>
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <label
-                           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            htmlFor="amount"
-                        >
-                          Amount (in Rs)
-                        </label>
-                        <input
-                            onChange={(e) => setAmount(e.target.value)}
-                            type="number"
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                            id="amount"
-                            placeholder="Enter amount"
-                        />
-                      </div>
-                      {error && <p className="text-red-500 text-sm">{error}</p>}
-                      <button
-                          onClick={handleTransfer}
-                          className={`justify-center rounded-md text-sm font-medium ring-offset-background transition-colors h-10 px-4 py-2 w-full ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-500 text-white'}`}
-                         disabled={loading}
-                        >
-                            {loading ? "Processing..." : "Initiate Transfer"}
-                        </button>
-                    </div>
-                </div>
+              <ArrowLeftIcon className="h-4 w-4" />
+            </button>
+            <div>
+              <CardTitle>Send Money</CardTitle>
+              <CardDescription>Transfer money to {name}</CardDescription>
             </div>
-        </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="flex flex-col items-center gap-3 py-4">
+            <Avatar className="h-20 w-20">
+              <AvatarFallback className="text-2xl bg-primary/10 text-primary">
+                {name?.[0]?.toUpperCase() || "U"}
+              </AvatarFallback>
+            </Avatar>
+            <div className="text-center">
+              <div className="text-xl font-semibold">{name}</div>
+              <div className="text-sm text-muted-foreground">{id}</div>
+            </div>
+          </div>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="amount">Amount (in ₹)</Label>
+              <div className="relative">
+                <Input
+                  id="amount"
+                  type="number"
+                  placeholder="Enter amount"
+                  className="pl-8"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                />
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                  ₹
+                </span>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="note">Add a note (optional)</Label>
+              <Input
+                id="note"
+                placeholder="What's this for?"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+              />
+            </div>
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+          </div>
+        </CardContent>
+        <CardFooter className="flex flex-col gap-4">
+          <Button
+            className="w-full"
+            size="lg"
+            onClick={handleTransfer}
+            disabled={loading || !amount}
+          >
+            <SendIcon className="mr-2 h-4 w-4" />
+            {loading
+              ? "Processing..."
+              : amount // check if amount exists
+              ? `Send ₹${parseFloat(amount).toFixed(2)}`
+              : "Enter Amount to Send"}
+          </Button>
+          <p className="text-xs text-center text-muted-foreground">
+            By continuing, you agree to our payment{" "}
+            <button
+              onClick={() => navigate("/terms")}
+              className="underline hover:text-primary"
+              type="button"
+            >
+              terms and conditions
+            </button>
+          </p>
+        </CardFooter>
+      </Card>
     </div>
-    );
+  );
 };

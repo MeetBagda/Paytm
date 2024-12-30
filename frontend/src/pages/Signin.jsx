@@ -47,14 +47,14 @@ export const Signin = () => {
             onChange={(e) => {
               setUsername(e.target.value);
             }}
-            placeholder="harkirat@gmail.com"
+            placeholder="user@gmail.com"
             label={"Email"}
           />
           <InputBox
             onChange={(e) => {
               setPassword(e.target.value);
             }}
-            placeholder="123456"
+            placeholder="securepassword123"
             label={"Password"}
             type="password" // Use type=password for password field
           />

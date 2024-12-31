@@ -122,7 +122,7 @@ export const SendMoney = () => {
             {loading
               ? "Processing..."
               : amount // check if amount exists
-              ? `Send ₹${parseFloat(amount).toFixed(2)}`
+              ? `Send ₹${parseFloat(amount)}`
               : "Enter Amount to Send"}
           </Button>
           <p className="text-xs text-center text-muted-foreground">

@@ -13,6 +13,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { Button } from "@/components/ui/button";
 
 
 const spendingData = [
@@ -35,18 +36,24 @@ export const Dashboard = () => {
         <div className="min-h-screen bg-gray-50">
           <Appbar />
             <main className="container mx-auto p-4 sm:p-6 lg:p-8">
-                <div className="mb-8 grid gap-4 md:grid-cols-3">
+                <div className="mb-8 grid gap-4 md:grid-cols-1">
                     <Card className="relative overflow-hidden">
+                        <div className="flex">
                         <CardHeader className="pb-2">
                             <CardTitle>Total Balance</CardTitle>
                             <CardDescription>Available in your account</CardDescription>
                         </CardHeader>
+                            <div className="mt-5">
+                            <Button>Deposit</Button>
+                            <Button>Withdraw</Button>
+                            </div>
+                        </div>
                         <CardContent>
                             <Balance />
                         </CardContent>
                         <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-primary/10" />
                     </Card>
-                    <Card>
+                    {/* <Card>
                         <CardHeader className="pb-2">
                             <CardTitle>Money Sent</CardTitle>
                             <CardDescription>This month</CardDescription>
@@ -72,10 +79,10 @@ export const Dashboard = () => {
                                 +15.3% from last month
                             </div>
                         </CardContent>
-                    </Card>
+                    </Card> */}
                 </div>
 
-                <div className="mb-8 grid gap-4 md:grid-cols-2">
+                {/* <div className="mb-8 grid gap-4 md:grid-cols-2">
                     <Card>
                         <CardHeader>
                             <CardTitle>Transaction History</CardTitle>
@@ -112,7 +119,7 @@ export const Dashboard = () => {
                                         key={transaction.id}
                                         className="flex items-center justify-between rounded-lg border p-3"
                                     >
-                                       {/* ... similar to the previous implementation */}
+                                       
                                        <div className="flex items-center gap-3">
                                             <div className={`rounded-full p-2 ${
                                                 transaction.type === 'received'
@@ -145,7 +152,7 @@ export const Dashboard = () => {
                             </div>
                         </CardContent>
                     </Card>
-                </div>
+                </div> */}
                <Card>
                     <Tabs defaultValue="all" className="w-full">
                         <CardHeader>

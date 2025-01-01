@@ -19,7 +19,7 @@ router.post("/transfer", authMiddleware, async (req, res) => {
     const session = await mongoose.startSession();
 
     session.startTransaction();
-    const { amount, to } = req.body;
+    const { amount, to, note } = req.body;
 
     try {
         // Fetch the accounts within the transaction
@@ -60,6 +60,7 @@ router.post("/transfer", authMiddleware, async (req, res) => {
                     userId: req.userId,
                     type: "transfer",
                     amount: -amount,
+                    description: note,
                     sourceUserId: req.userId,
                     destinationUserId: to,
                 },
@@ -67,6 +68,7 @@ router.post("/transfer", authMiddleware, async (req, res) => {
                     userId: to,
                     type: "transfer",
                     amount: amount,
+                    description: note,
                     sourceUserId: req.userId,
                     destinationUserId: to,
                 },
@@ -107,6 +109,7 @@ router.post("/deposit", authMiddleware, async (req, res) => {
             {
               userId: req.userId,
               type: "deposit",
+              description: "Deposit",
               amount: amount,
             },
           ],
@@ -156,6 +159,7 @@ router.post("/withdraw", authMiddleware, async (req, res) => {
         {
             userId: req.userId,
             type: "withdrawal",
+            description: "Withdrawal",
             amount: -amount,
         }
       ],{ session })

@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { AccountActivity } from "./AccountActivity";
 
 export const Dashboard = () => {
   const [isDepositOpen, setIsDepositOpen] = useState(false);
@@ -105,7 +106,7 @@ export const Dashboard = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-          body: JSON.stringify({ amount }),
+          body: JSON.stringify({ amount, description: "Withdrawal" }),
         }
       );
       if (!response.ok) {
@@ -202,6 +203,8 @@ export const Dashboard = () => {
             </CardContent>
           </Tabs>
         </Card>
+        <div className="mt-9"></div>
+        <AccountActivity />
         <DepositModal
           isOpen={isDepositOpen}
           onClose={() => setIsDepositOpen(false)}

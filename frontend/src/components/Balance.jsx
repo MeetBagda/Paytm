@@ -13,7 +13,7 @@ export const Balance = ({balance, loading, error}) => {
 
   return (
     <div>
-      <div className="text-3xl font-bold">₹{balance}</div>
+      <div className="text-3xl font-bold">₹{Math.abs(balance).toFixed(2)}</div>
       <div className="mt-2 flex items-center text-sm text-green-600">
         <ArrowUpIcon className="mr-1 h-4 w-4" />
         +12.5% from last month

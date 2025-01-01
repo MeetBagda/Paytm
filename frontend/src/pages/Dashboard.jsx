@@ -1,5 +1,3 @@
-"use client";
-
 import { Appbar } from "../components/Appbar";
 import { Balance } from "../components/Balance";
 import { Users } from "../components/Users";
@@ -24,77 +22,111 @@ import {
   WalletIcon,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
 import { DepositModal } from "./DepositModal";
 import { WithdrawModal } from "./WithdrawModal";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
-
-const spendingData = [
-  { date: "Jan 1", amount: 2400 },
-  { date: "Jan 2", amount: 1398 },
-  { date: "Jan 3", amount: 9800 },
-  { date: "Jan 4", amount: 3908 },
-  { date: "Jan 5", amount: 4800 },
-  { date: "Jan 6", amount: 3800 },
-  { date: "Jan 7", amount: 4300 },
-];
-const recentTransactions = [
-  { id: 1, type: "sent", name: "John Doe", amount: 500, time: "2 hours ago" },
-  {
-    id: 2,
-    type: "received",
-    name: "Sarah Smith",
-    amount: 1200,
-    time: "5 hours ago",
-  },
-  { id: 3, type: "sent", name: "Mike Johnson", amount: 750, time: "Yesterday" },
-];
+import { useState, useEffect } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export const Dashboard = () => {
   const [isDepositOpen, setIsDepositOpen] = useState(false);
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
-  const balance = 7637.12;
+  const [balance, setBalance] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:3000/api/v1/account/balance",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          setError(errorData.message || "Failed to fetch balance");
+          throw new Error("Failed to fetch balance");
+        }
+        const data = await response.json();
+        setBalance(data.balance);
+        setError(null);
+      } catch (error) {
+        console.error("Error fetching balance:", error);
+        setError(error.message || "Failed to fetch balance");
+        toast.error("Failed to fetch balance");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchBalance();
+  }, []);
 
   async function handleDeposit(amount) {
     try {
-      const response = await fetch("/deposit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount }),
-      });
-      if (!response.ok) throw new Error("Deposit failed");
-      // Handle success (e.g., refresh balance)
+      const response = await fetch(
+        "http://localhost:3000/api/v1/account/deposit",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({ amount }),
+        }
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Deposit failed");
+      }
+      toast.success("Deposit successful");
+      const data = await response.json();
+      setBalance((prevBalance) => prevBalance + amount);
     } catch (error) {
       console.error("Deposit error:", error);
-      // Handle error (show toast, etc.)
+      toast.error(error.message || "Deposit failed");
     }
   }
 
   async function handleWithdraw(amount) {
     try {
-      const response = await fetch("/withdraw", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount }),
-      });
-      if (!response.ok) throw new Error("Withdrawal failed");
-      // Handle success (e.g., refresh balance)
+      const response = await fetch(
+        "http://localhost:3000/api/v1/account/withdraw",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({ amount }),
+        }
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Withdrawal failed");
+      }
+      toast.success("Withdraw successful");
+      setBalance((prevBalance) => prevBalance - amount);
     } catch (error) {
       console.error("Withdrawal error:", error);
-      // Handle error (show toast, etc.)
+      toast.error(error.message || "Withdrawal failed");
     }
+  }
+
+  if (isLoading) {
+    return <div>Loading...</div>;
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
+        <ToastContainer />
       <Appbar />
       <main className="container mx-auto p-4 sm:p-6 lg:p-8">
         <div className="mb-8 grid gap-4 md:grid-cols-6">
@@ -104,7 +136,7 @@ export const Dashboard = () => {
               <CardDescription>Available in your account</CardDescription>
             </CardHeader>
             <CardContent>
-              <Balance />
+              <Balance balance={balance} loading={isLoading} error={error} />
             </CardContent>
             <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-primary/10" />
           </Card>
@@ -148,106 +180,7 @@ export const Dashboard = () => {
               </Button>
             </CardContent>
           </Card>
-          {/* <Card>
-                        <CardHeader className="pb-2">
-                            <CardTitle>Money Sent</CardTitle>
-                            <CardDescription>This month</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-3xl font-bold text-red-600">₹4,250.00</div>
-                            <div className="mt-2 flex items-center text-sm text-red-600">
-                                <ArrowUpIcon className="mr-1 h-4 w-4" />
-                                +8.2% from last month
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardTitle>Money Received</CardTitle>
-                            <CardDescription>This month</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-3xl font-bold text-green-600">₹5,880.00</div>
-                            <div className="mt-2 flex items-center text-sm text-green-600">
-                                <ArrowUpIcon className="mr-1 h-4 w-4" />
-                                +15.3% from last month
-                            </div>
-                        </CardContent>
-                    </Card> */}
         </div>
-
-        {/* <div className="mb-8 grid gap-4 md:grid-cols-2">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Transaction History</CardTitle>
-                            <CardDescription>Your spending pattern</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="h-[200px]">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <LineChart data={spendingData}>
-                                        <XAxis dataKey="date" />
-                                        <YAxis />
-                                        <Tooltip />
-                                        <Line
-                                            type="monotone"
-                                            dataKey="amount"
-                                            stroke="hsl(var(--primary))"
-                                            strokeWidth={2}
-                                        />
-                                    </LineChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Recent Activity</CardTitle>
-                            <CardDescription>Your latest transactions</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                {recentTransactions.map((transaction) => (
-                                    <div
-                                        key={transaction.id}
-                                        className="flex items-center justify-between rounded-lg border p-3"
-                                    >
-                                       
-                                       <div className="flex items-center gap-3">
-                                            <div className={`rounded-full p-2 ${
-                                                transaction.type === 'received'
-                                                    ? 'bg-green-100 text-green-600'
-                                                    : 'bg-red-100 text-red-600'
-                                            }`}>
-                                                {transaction.type === 'received' ? (
-                                                    <ArrowDownIcon className="h-4 w-4" />
-                                                ) : (
-                                                    <ArrowUpIcon className="h-4 w-4" />
-                                                )}
-                                            </div>
-                                            <div>
-                                                <div className="font-medium">{transaction.name}</div>
-                                                <div className="text-sm text-muted-foreground">
-                                                    {transaction.time}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className={`font-medium ${
-                                            transaction.type === 'received'
-                                                ? 'text-green-600'
-                                                : 'text-red-600'
-                                        }`}>
-                                            {transaction.type === 'received' ? '+' : '-'}
-                                            ₹{transaction.amount}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div> */}
 
         <Card>
           <Tabs defaultValue="all" className="w-full">

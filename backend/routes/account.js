@@ -58,7 +58,7 @@ router.post("/transfer", authMiddleware, async (req, res) => {
             [
                 {
                     userId: req.userId,
-                    type: "transfer",
+                    type: "debit",
                     amount: -amount,
                     description: note,
                     sourceUserId: req.userId,
@@ -66,7 +66,7 @@ router.post("/transfer", authMiddleware, async (req, res) => {
                 },
                 {
                     userId: to,
-                    type: "transfer",
+                    type: "credit",
                     amount: amount,
                     description: note,
                     sourceUserId: req.userId,

@@ -171,7 +171,7 @@ export const AccountActivity = () => {
                     {transaction.type === "withdrawal" && (
                       <ArrowUpIcon className="mr-2 h-4 w-4 text-red-500" />
                     )}
-                    {transaction.type === "transfer" && (
+                    {(transaction.type === "debit" || transaction.type === "credit") && (
                       <SendIcon className="mr-2 h-4 w-4 text-blue-500" />
                     )}
                     {transaction.type.charAt(0).toUpperCase() +

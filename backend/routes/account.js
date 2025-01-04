@@ -63,6 +63,7 @@ router.post("/transfer", authMiddleware, async (req, res) => {
                     description: note,
                     sourceUserId: req.userId,
                     destinationUserId: to,
+                    status: "completed",
                 },
                 {
                     userId: to,
@@ -71,6 +72,7 @@ router.post("/transfer", authMiddleware, async (req, res) => {
                     description: note,
                     sourceUserId: req.userId,
                     destinationUserId: to,
+                    status: "completed",
                 },
             ],
             { session }
